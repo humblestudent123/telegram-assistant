@@ -170,16 +170,43 @@ bot.on('callback_query', (query) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bot.on('callback_query', (query) => {
   const chatId = query.message.chat.id;
   const data = query.data;
 
+  if (data === 'get_picture') {
+    const imagePath = path.resolve(__dirname, getRandomImage());
+    bot.sendPhoto(chatId, imagePath, {
+      caption: 'Вот картинка!',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: 'Ещё картинку', callback_data: 'get_picture' }],
+          [{ text: 'Вернуться назад', callback_data: 'go_back' }]
+        ]
+      }
+    });
+  }
 
-
-
-
-
-
+  if (data === 'get_help') {
+    bot.sendMessage(chatId, 'Вот список команд:\n/start\n/help\n/picture');
+  }
 
   if (data === 'go_back') {
     bot.sendMessage(chatId, 'Что хочешь сделать?', {
@@ -192,27 +219,6 @@ bot.on('callback_query', (query) => {
     });
   }
 
-
-
-
-
-
-
-  if (data === 'get_picture') {
-    const imagePath = path.resolve(__dirname, getRandomImage());
-    bot.sendPhoto(chatId, imagePath, {
-      caption: 'Вот картинка!',
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: 'Вернуться назад', callback_data: 'go_back' }]
-        ]
-      }
-    });
-  }
-
-  if (data === 'get_help') {
-    bot.sendMessage(chatId, 'Вот список команд:\n/start\n/help\n/picture');
-  }
-
-  bot.answerCallbackQuery(query.id); // обязательно — иначе крутилка не исчезнет
+  bot.answerCallbackQuery(query.id); // закрывает крутилку
 });
+
