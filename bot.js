@@ -27,22 +27,14 @@ bot.on("polling_error", (error) => {
 
 
 
-// Обработчик команды /start
-bot.onText(/\/start/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'Привет! Я твой бот.');
-});
+
+
 
 // Логирование для отладки
 console.log('Бот запущен...');
 
 
 
-bot.onText(/\/help/, (msg) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, 'вот список доступных команд: /start, /help ворволыфвфылвлфилофивьфивфыви');
-  // bot.sendMessage(chatId, '/start')
-}); 
 
 
 
@@ -98,7 +90,7 @@ bot.onText(/\/picture/, (msg) => {
   const imagePath = getRandomImage();
 
   bot.sendPhoto(chatId, path.resolve(imagePath), {
-    caption: 'Держи! Хочешь ещё?'
+    // caption: 'Держи! Хочешь ещё?'
   });
 });
 
@@ -107,12 +99,120 @@ bot.onText(/\/picture/, (msg) => {
 
 
 
-// Обработчик команды /помощь
-bot.onText(/\/help/, (msg) => {
+
+
+
+
+
+
+
+
+
+
+
+
+bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
 
-  bot.sendPhoto(chatId, path.resolve(), {
-    caption: 'как я могу вам помочь?'
+  bot.sendMessage(chatId, 'Привет! Что хочешь сделать?', {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: 'Картинку!', callback_data: 'get_picture' }],
+        [{ text: 'Помощь', callback_data: 'get_help' }]
+      ]
+    }
   });
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bot.on('callback_query', (query) => {
+  const chatId = query.message.chat.id;
+  const data = query.data;
+
+  if (data === 'get_picture') {
+    const imagePath = path.resolve(__dirname, getRandomImage());
+    bot.sendPhoto(chatId, imagePath, {
+      caption: 'Вот картинка!',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: 'Ещё одну!', callback_data: 'get_picture' }],
+          [{ text: 'Вернуться назад', callback_data: '' }]
+        ]
+      }
+    });
+  }
+
+  if (data === 'get_help') {
+    bot.sendMessage(chatId, 'Вот список команд:\n/start\n/help\n/picture');
+  }
+
+  bot.answerCallbackQuery(query.id); // обязательно — иначе крутилка не исчезнет
+});
+
+
+
+
+
+
+
+bot.on('callback_query', (query) => {
+  const chatId = query.message.chat.id;
+  const data = query.data;
+
+
+
+
+
+
+
+
+  if (data === 'go_back') {
+    bot.sendMessage(chatId, 'Что хочешь сделать?', {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: 'Картинку!', callback_data: 'get_picture' }],
+          [{ text: 'Помощь', callback_data: 'get_help' }]
+        ]
+      }
+    });
+  }
+
+
+
+
+
+
+
+  if (data === 'get_picture') {
+    const imagePath = path.resolve(__dirname, getRandomImage());
+    bot.sendPhoto(chatId, imagePath, {
+      caption: 'Вот картинка!',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: 'Вернуться назад', callback_data: 'go_back' }]
+        ]
+      }
+    });
+  }
+
+  if (data === 'get_help') {
+    bot.sendMessage(chatId, 'Вот список команд:\n/start\n/help\n/picture');
+  }
+
+  bot.answerCallbackQuery(query.id); // обязательно — иначе крутилка не исчезнет
+});
